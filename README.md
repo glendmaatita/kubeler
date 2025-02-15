@@ -91,9 +91,9 @@ Then, define the variables in `installer.yaml`.
         - ingress.yaml
     vars:
         - name: ingress_class
-            value: nginx
+          value: nginx
         - name: host_url
-            value: argocd.example.com
+          value: argocd.example.com
 ```
 
 You can also reference variables from a previous step using `ref.`.
