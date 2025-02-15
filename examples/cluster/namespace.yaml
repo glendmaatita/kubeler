@@ -34,3 +34,21 @@ metadata:
     name: cert-manager
 
 ---
+
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: harbor
+  labels:
+    name: harbor
+
+---
+
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: database
+  labels:
+    name: database
+
+---

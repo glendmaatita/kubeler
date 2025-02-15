@@ -1,0 +1,78 @@
+init:
+  cmd: 
+    - apt update -y
+    - apt upgrade
+
+group:
+  name: k8s
+  steps:
+    - name: cluster
+      dir: ./cluster
+    - name: cert-manager
+      dir: ./cert
+      vars:
+        - name: email
+          value: glend@example.com
+        - name: ingress_class
+          value: nginx
+    - name: argocd
+      dir: ./tools/argocd
+      files:
+        - manifest.yaml
+        - ingress.yaml
+      vars:
+        - name: ingress_class
+          value: nginx
+        - name: host_url
+          value: argocd.example.com
+    - name: redis
+      dir: ./tools/redis
+      vars:
+        - name: password
+          value: Password01
+    - name: postgresql
+      dir: ./tools/postgresql
+      vars:
+        - name: postgres_password
+          value: Password01
+        - name: username
+          value: admin
+        - name: password
+          value: Password01
+        - name: intial_db
+          value: example_db
+        - name: init_db
+          value: |
+            CREATE DATABASE harbor;
+    - name: harbor
+      dir: ./tools/harbor
+      files:
+        - volume.yaml
+        - values.yaml
+      vars:
+        - name: external_url
+          value: https://harbor.example.com
+        - name: storage_class
+          value: longhorn
+        - name: admin_password
+          value: Password01
+        - name: registry_username
+          value: admin
+        - name: registry_password
+          value: Password01
+        - name: trivy_enabled
+          value: "false"
+        - name: db_host
+          value: postgresql.database.svc.cluster.local
+        - name: db_port
+          value: "5432"
+        - name: db_username
+          value: ref.postgresql.vars.username
+        - name: db_password
+          value: ref.postgresql.vars.password
+        - name: db_core_database  
+          value: harbor
+        - name: redis_addr 
+          value: redis-master.svc.cluster.local
+        - name: redis_password  
+          value: ref.redis.vars.password

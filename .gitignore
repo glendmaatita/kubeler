@@ -1,3 +1,5 @@
 .venv
-installer.yaml
-# k8s/
+**/__pycache__
+dist/
+build/
+kubeler.egg-info/
