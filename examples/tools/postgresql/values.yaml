@@ -1,0 +1,22 @@
+#cmd: helm repo add bitnami https://charts.bitnami.com/bitnami
+#cmd: helm install postgresql -f values.yaml bitnami/postgresql -n database
+image:
+  tag: 16.4.0
+
+auth:
+  enablePostgresUser: true
+  postgresPassword: {{ postgres_password }}
+  username: {{ username }}
+  password: {{ password }}
+  database: {{ initial_db }}
+
+primary:
+  persistence:
+    enabled: true
+    existingClaim: "postgresql-pvc"
+
+volumePermissions:
+  enabled: true
+
+initdbScripts:
+  init_db.sql: {{ init_db }}

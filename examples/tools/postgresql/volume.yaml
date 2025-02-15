@@ -1,0 +1,11 @@
+#cmd: kubectl -n database apply -f volume.yaml
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgresql-pvc
+spec:
+  accessModes: [ReadWriteOnce]
+  resources: 
+    requests: 
+      storage: 40Gi

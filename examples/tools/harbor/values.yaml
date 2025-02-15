@@ -1,0 +1,52 @@
+#cmd helm repo add harbor https://helm.goharbor.io
+#cmd helm install harbor -f values.yaml harbor/harbor -n harbor
+expose:
+  type: clusterIP
+  tls:
+    auto:
+      commonName: "tls-harbor-secret"
+externalURL: {{ external_url }}
+
+persistence:
+  enabled: true
+  resourcePolicy: "keep"
+  persistentVolumeClaim:
+    registry:
+      existingClaim: "harbor-registry-pvc"
+    trivy:
+      existingClaim: "harbor-trivy-pvc"
+      storageClass: {{ storage_class }}
+      subPath: ""
+      accessMode: ReadWriteOnce
+      size: 5Gi
+      annotations: {}
+  imageChartStorage:
+    type: filesystem
+harborAdminPassword: {{ admin_password }}
+
+cache:
+  enabled: true
+  expireHours: 24
+
+registry:
+  credentials:
+    username: {{ registry_username }}
+    password: {{ registry_password }}
+
+trivy:
+  enabled: {{ trivy_enabled }}
+
+database:
+  type: external
+  external:
+    host: {{ db_host }}
+    port: {{ db_port }}
+    username: {{ db_username }}
+    password: {{ db_password }}
+    coreDatabase: {{ db_core_database }}
+
+redis:
+  type: external
+  external:
+    addr: {{ redis_addr }}
+    password: {{ redis_password }}

@@ -1,0 +1,28 @@
+#cmd: kubectl -n argocd apply -f ingress.yaml
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argocd-server
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-issuer
+    kubernetes.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+spec:
+  ingressClassName: {{ ingress_class }}
+  rules:
+    - host: {{ host_url }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service: 
+                name: argocd-server
+                port: 
+                  name: https
+  tls:
+  - hosts:
+    - {{ host_url }}
+    secretName: argocd-secret # do not change, this is provided by Argo CD

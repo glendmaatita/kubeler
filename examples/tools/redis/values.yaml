@@ -1,0 +1,12 @@
+#cmd: helm repo add bitnami https://charts.bitnami.com/bitnami 
+#cmd: helm install redis bitnami/redis -f values.yaml -n harbor
+image:
+  tag: 7.4
+architecture: standalone
+auth:
+  enabled: true
+  password: {{ password }}
+  sentinel: false
+master:
+  persistence:
+    enabled: false

@@ -1,0 +1,19 @@
+#cmd kubectl -n harbor apply -f volume.yaml
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: harbor-registry-pvc
+spec:
+  accessModes: [ReadWriteOnce]
+  resources: { requests: { storage: 160Gi } }
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: harbor-trivy-pvc
+spec:
+  accessModes: [ReadWriteOnce]
+  resources: { requests: { storage: 5Gi } }

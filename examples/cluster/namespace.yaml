@@ -1,0 +1,36 @@
+#cmd: kubectl apply -f namespace.yaml
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: staging
+  labels:
+    name: staging
+
+---
+
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: production
+  labels:
+    name: production
+---
+
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: argocd
+  labels:
+    name: argocd
+
+---
+
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: cert-manager
+  labels:
+    name: cert-manager
+
+---
