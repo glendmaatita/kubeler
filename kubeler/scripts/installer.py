@@ -1,5 +1,5 @@
 import yaml, os, sys, subprocess, shutil, jinja2
-from scripts.models.kubeler import Kubeler
+from .models.kubeler import Kubeler
 
 tmp_dir = "/tmp/kubeler"
 

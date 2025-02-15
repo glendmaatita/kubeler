@@ -1,5 +1,5 @@
 import argparse
-from scripts.installer import Installer
+from .scripts.installer import Installer
 
 def main():
     parser = argparse.ArgumentParser(description="Installer script")
