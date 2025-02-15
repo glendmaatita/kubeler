@@ -114,7 +114,7 @@ You can also reference variables from a previous step using `ref.`.
 
 ### Attributes
 
-`name`: Name of the step.
-`dir`: Directory where the manifest files reside.
-`files`: List of files in the directory that will be executed in order.
-`vars`: Variables for dynamic values inside the manifest file.
+- `name`: Name of the step.
+- `dir`: Directory where the manifest files reside.
+- `files`: List of files in the directory that will be executed in order.
+- `vars`: Variables for dynamic values inside the manifest file.
