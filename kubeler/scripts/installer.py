@@ -119,6 +119,15 @@ class Installer:
                                     for ref in step.vars:
                                         if ref.name == var_name:
                                             var.value = ref.value
+
+        # handle environment variables
+        for step in kubeler.group.steps:
+            if step.vars != None:
+                for var in step.vars:
+                    if var.value.startswith("env."):
+                        env_var = var.value.split("env.")[1]
+                        var.value = os.environ.get(env_var)
+                        
         return kubeler
 
     # open the configuration file    

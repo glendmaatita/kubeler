@@ -112,6 +112,16 @@ You can also reference variables from a previous step using `ref.`.
           value: ref.redis.vars.password
 ```
 
+You can also reference variables from environment variables using `env.`.
+
+```
+- name: harbor
+    dir: ./tools/harbor
+    vars:
+        - name: redis_password  
+          value: env.REDIS_PASSWORD
+```
+
 ### Attributes
 
 - `name`: Name of the step.
