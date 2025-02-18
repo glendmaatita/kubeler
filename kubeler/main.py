@@ -1,5 +1,6 @@
 import argparse
 from .scripts.installer import Installer
+from dotenv import load_dotenv
 
 def main():
     parser = argparse.ArgumentParser(description="Installer script")
@@ -11,6 +12,9 @@ def main():
     install_parser.add_argument('--kube-config', type=str, default='~/kube/config', help='Path to the kube config file')
 
     args = parser.parse_args()
+
+    # load .env
+    load_dotenv()
 
     if args.command == 'install':
         installer = Installer(installer=args.installer, kube_config=args.kube_config)
