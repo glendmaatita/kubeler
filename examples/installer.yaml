@@ -8,6 +8,7 @@ group:
   steps:
     - name: cluster
       dir: ./cluster
+      exclude: yes
     - name: cert-manager
       dir: ./cert
       vars:
@@ -49,6 +50,7 @@ group:
       files:
         - volume.yaml
         - values.yaml
+      exclude: yes
       vars:
         - name: external_url
           value: https://harbor.example.com

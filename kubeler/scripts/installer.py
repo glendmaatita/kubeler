@@ -4,9 +4,13 @@ from .models.kubeler import Kubeler
 tmp_dir = "/tmp/kubeler"
 
 class Installer:
-    def __init__(self, installer, kube_config):
+    def __init__(self, installer, kube_config, start_from, steps, excludes):
         self.installer = installer
         self.kube_config = kube_config
+        self.start_from = start_from
+        self.kube_config = kube_config
+        self.steps = steps
+        self.excludes = excludes
 
         # get the directory path of the installer and kube_config
         self.installer_dir_path = os.path.dirname(installer)
@@ -127,6 +131,32 @@ class Installer:
                     if var.value.startswith("env."):
                         env_var = var.value.split("env.")[1]
                         var.value = os.environ.get(env_var)
+
+        # handle excludes
+        if self.excludes != None:
+            excludes = self.excludes.split(",")
+            for exclude in excludes:
+                for step in kubeler.group.steps:
+                    if step.name == exclude:
+                        kubeler.group.steps.remove(step)
+        
+        for step in kubeler.group.steps:
+            if step.exclude == "yes" or step.exclude == True:
+                kubeler.group.steps.remove(step)
+
+        # handle start from step
+        if self.start_from != None:
+            start_from = self.start_from
+            for step in kubeler.group.steps:
+                if step.name == start_from:
+                    kubeler.group.steps = kubeler.group.steps[kubeler.group.steps.index(step):]
+
+        # handle only run specific steps
+        if self.steps != None:
+            steps = self.steps.split(",")
+            for step in kubeler.group.steps:
+                if step.name not in steps:
+                    kubeler.group.steps.remove(step)
                         
         return kubeler
 

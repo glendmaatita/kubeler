@@ -14,6 +14,7 @@ class Step(BaseModel):
     dir: str = Field(title="Directory of the step", min_length=3, max_length=255)
     files: List[str] | None = Field(default=None, title="Files to be processed in order")
     vars: List[Variable] | None = Field(default=None,title="Variables to be passed to the step")
+    exclude: str | bool | None = Field(default=None, title="Exclude the step from execution")
 
 class Group(BaseModel):
     name: str = Field(title="Initial Command")

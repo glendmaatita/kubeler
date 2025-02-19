@@ -112,7 +112,7 @@ You can also reference variables from a previous step using `ref.`.
           value: ref.redis.vars.password
 ```
 
-You can also reference variables from environment variables using `env.`.
+You can also reference variables from environment variables using `env.`. In addition, using `.env` file defined in the same directory with `installer.yaml` also works for this case.
 
 ```
 - name: harbor
@@ -128,3 +128,39 @@ You can also reference variables from environment variables using `env.`.
 - `dir`: Directory where the manifest files reside.
 - `files`: List of files in the directory that will be executed in order.
 - `vars`: Variables for dynamic values inside the manifest file.
+
+## Options
+
+There are some options available with installing Kubernetes Resources using Kubeler.
+
+### Exclude Steps
+
+Use attributes `exclude=yes` or argument `--excludes` if you want to skip some steps from execution
+
+```
+steps:
+  - name: cluster
+    dir: ./cluster
+    exclude: yes
+```
+
+or 
+```
+--installer=./../examples/installer.yaml --excludes=argocd,redis
+```
+
+### Define starting point
+
+Use argument `--start-from` if you want to execute steps from a certain point
+
+```
+--installer=./../examples/installer.yaml --start-from=argocd
+```
+
+## Execute only some steps
+
+Use argument `--steps` if you want to only execute some steps and exclude the other
+
+```
+--installer=./../examples/installer.yaml --steps=argocd,redis
+```
