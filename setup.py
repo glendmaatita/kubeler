@@ -9,6 +9,8 @@ setup(
         "jinja2>=3.1.5",
         "kubernetes>=32.0.0",
         "pydantic>=2.10.6",
+        "python-dotenv>=1.0.1",
+        "watchdog>=6.0.0",
     ],
     entry_points={
         'console_scripts': [

@@ -5,10 +5,14 @@ init:
 
 group:
   name: k8s
+  watch:
+    enabled: true
+    dir: 
+      - ./applications
+      - ./cluster
   steps:
     - name: cluster
       dir: ./cluster
-      exclude: yes
     - name: cert-manager
       dir: ./cert
       vars:

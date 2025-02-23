@@ -16,9 +16,14 @@ class Step(BaseModel):
     vars: List[Variable] | None = Field(default=None,title="Variables to be passed to the step")
     exclude: str | bool | None = Field(default=None, title="Exclude the step from execution")
 
+class Watch(BaseModel):
+    enabled: bool = Field(title="Watch enabled")
+    dir: List[str] = Field(default=None, title="Directory to be watched")
+
 class Group(BaseModel):
     name: str = Field(title="Initial Command")
     steps: List[Step] = Field(title="List of steps to be executed")
+    watch: Watch | None = Field(default=None,title="Watch configuration")
 
 class Kubeler(BaseModel):
     init: Init | None = Field(default=None,title="Initial Command")

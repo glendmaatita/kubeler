@@ -1,16 +1,21 @@
 import yaml, os, sys, subprocess, shutil, jinja2
+from kubernetes import client, config as k8sconfig
 from .models.kubeler import Kubeler
+from .helpers.watchdog import watch_directory
 
 tmp_dir = "/tmp/kubeler"
+k8sconfig.load_kube_config()
+v1 = client.CoreV1Api()
 
 class Installer:
-    def __init__(self, installer, kube_config, start_from, steps, excludes):
+    def __init__(self, installer, kube_config, start_from, steps, excludes, watch):
         self.installer = installer
         self.kube_config = kube_config
         self.start_from = start_from
         self.kube_config = kube_config
         self.steps = steps
         self.excludes = excludes
+        self.watch = watch
 
         # get the directory path of the installer and kube_config
         self.installer_dir_path = os.path.dirname(installer)
@@ -72,19 +77,27 @@ class Installer:
                 
                 # get commands defined in the file
                 commands = self.load_file(file_path)
-                for command in commands:
-                    print("Executing command: ", command)
-                    cmd = command.split()
-                    process = subprocess.Popen(cmd, cwd=execution_dir, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1, universal_newlines=True)
-                    for line in process.stdout:
-                        print(line, end="")
-                        sys.stdout.flush()
-                    process.wait()
+                self.execute(commands, execution_dir)
 
                 # if config_path exists, restore the file
                 if os.path.exists(config_path):
                     os.remove(config_path)
-                
+
+        if kubeler.group.watch.enabled == True:
+            for watch_dir in kubeler.group.watch.dir:
+                print("Watch for directory: ", watch_dir)
+                watch_directory(self, watch_dir)
+
+    def execute(self, commands, execution_dir):
+        for command in commands:
+            print("Executing command: ", command)
+            cmd = command.split()
+            process = subprocess.Popen(cmd, cwd=execution_dir, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1, universal_newlines=True)
+            for line in process.stdout:
+                print(line, end="")
+                sys.stdout.flush()
+            process.wait()
+
     # if there some files in the directory, load them
     def load_files_in_dir(self, dir):
         files = []
@@ -100,7 +113,9 @@ class Installer:
             for line in file:
                 if line.startswith("#cmd:"):
                     command = line.split(":", 1)[1].strip()
+                    command = self.handle_helm_chart_idempotency(command)
                     commands.append(command)
+                        
         return commands
 
     #  load the configuration file and parse to Kubeler model
@@ -154,10 +169,10 @@ class Installer:
         # handle only run specific steps
         if self.steps != None:
             steps = self.steps.split(",")
-            for step in kubeler.group.steps:
+            for step in kubeler.group.steps[:]:
                 if step.name not in steps:
                     kubeler.group.steps.remove(step)
-                        
+
         return kubeler
 
     # open the configuration file    
@@ -168,3 +183,41 @@ class Installer:
                 return data
             except yaml.YAMLError as exc:
                 raise ValueError("Failed to load configuration")
+            
+    def is_helm_chart_installed(self, release_name, namespace="default"):
+        secrets = v1.list_namespaced_secret(namespace).items
+        for secret in secrets:
+            labels = secret.metadata.labels or {}
+            if labels.get("owner") == "helm" and labels.get("name") == release_name:
+                return True
+        return False
+    
+    def handle_helm_chart_idempotency(self, command):
+        # check if it's helm from: #cmd: helm install ...
+        if command.startswith("helm install"):
+            # get namespace from some scenarios:
+            # -n <namespace>
+            # --namespace <namespace>
+            # --namespace=<namespace>
+            namespace = None
+            if "-n" in command:
+                namespace = command.split("-n")[1].split()[0]
+            elif "--namespace" in command:
+                namespace = command.split("--namespace")[1].split()[0]
+            elif "--namespace=" in command:
+                namespace = command.split("--namespace=")[1].split()[0]
+            
+            # get release name from: #cmd: helm install <release_name> ...
+            # get after `helm install` or `helm upgrade`
+            release_name = None
+            if "install" in command:
+                release_name = command.split("install")[1].split()[0]
+            elif "upgrade" in command:
+                release_name = command.split("upgrade")[1].split()[0]
+            
+            if namespace != None:
+                if self.is_helm_chart_installed(release_name, namespace):
+                    # remove --install and replace install with upgrade
+                    command = command.replace("--install", "").replace("install", "upgrade")
+            
+        return command
