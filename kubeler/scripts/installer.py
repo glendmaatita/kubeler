@@ -1,7 +1,7 @@
 import yaml, os, sys, subprocess, shutil, jinja2
 from kubernetes import client, config as k8sconfig
 from .models.kubeler import Kubeler
-from .helpers.watchdog import watch_directory
+from .watchdog import watch_directory
 
 tmp_dir = "/tmp/kubeler"
 k8sconfig.load_kube_config()
@@ -83,10 +83,8 @@ class Installer:
                 if os.path.exists(config_path):
                     os.remove(config_path)
 
-        if kubeler.group.watch.enabled == True:
-            for watch_dir in kubeler.group.watch.dir:
-                print("Watch for directory: ", watch_dir)
-                watch_directory(self, watch_dir)
+        if kubeler.group.watch.enabled == True and self.watch == "true":
+            watch_directory(self, os.path.abspath(self.installer_dir_path), kubeler.group.watch.dir)
 
     def execute(self, commands, execution_dir):
         for command in commands:

@@ -164,3 +164,27 @@ Use argument `--steps` if you want to only execute some steps and exclude the ot
 ```
 --installer=./../examples/installer.yaml --steps=argocd,redis
 ```
+
+## Watching for file changes
+
+Use the `--watch` argument to monitor a directory and automatically apply changes when they occur.
+
+Update `installer.yaml` to set `watch` attribute
+
+```
+group:
+  name: k8s
+  watch:
+    enabled: true
+    dir: 
+      - ./applications
+      - ./cluster
+```
+
+and then, run
+
+```
+kubeler install --installer=./examples/installer.yaml --watch=true
+```
+
+

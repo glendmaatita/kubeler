@@ -1,4 +1,4 @@
-import time
+import time, os
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
@@ -10,7 +10,7 @@ class WatchHandler(FileSystemEventHandler):
         if not event.is_directory:
             print(f"File modified: {event.src_path}")
             commands = self.handler.load_file(event.src_path)
-            self.handler.execute(commands)
+            self.handler.execute(commands, os.path.dirname(event.src_path))
 
     def on_created(self, event):
         if not event.is_directory:
@@ -20,10 +20,12 @@ class WatchHandler(FileSystemEventHandler):
         if not event.is_directory:
             print(f"File deleted: {event.src_path}")
 
-def watch_directory(handler, path="."):
+def watch_directory(handler, dir, paths=["."]):
     event_handler = WatchHandler(handler)
     observer = Observer()
-    observer.schedule(event_handler, path, recursive=True)
+    for path in paths:
+        dir_path = os.path.join(dir, path)
+        observer.schedule(event_handler, dir_path, recursive=True)
     observer.start()
 
     try:
